@@ -41,6 +41,14 @@ Este proyecto automatiza todo ese flujo usando IA.
 
 ---
 
+## 🏗️ Arquitectura
+
+![Arquitectura del sistema](docs/architecture.png)
+
+El sistema recibe una consulta, la procesa mediante un modelo LLM local utilizando Ollama, clasifica la intención y ejecuta acciones automáticas como almacenamiento y respuesta.
+
+---
+
 ## 🔄 Flujo del sistema
 
 ```txt
@@ -70,12 +78,14 @@ Podés ver ejemplos completos en:
 
 ## 📁 Estructura del proyecto
 
+```txt
 ai-automation-agent/
 ├── docs/
 ├── examples/
 ├── n8n/
 ├── prompts/
 └── README.md
+```
 
 ## 📈 Posibles mejoras
 
@@ -86,10 +96,10 @@ ai-automation-agent/
 
 ## 👨‍💻 Autor
 
-Alberto Arce
-**AI Engineer**
+**Alberto Arce**
+AI Engineer | Backend Developer
 
 ## 🔗 Conectemos
 
-LinkedIn: https://linkedin.com/in/cucuarce
-GitHub: https://github.com/cucuarce
+- LinkedIn: https://linkedin.com/in/cucuarce
+- GitHub: https://github.com/cucuarce
