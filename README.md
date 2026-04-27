@@ -78,10 +78,14 @@ El sistema recibe una consulta, la procesa mediante un modelo LLM local utilizan
 Webhook → n8n → LLM (Ollama) → Clasificación → Base de datos → Respuesta automática
 ```
 
+---
+
 ## 📌 Ejemplo de uso
 
 Podés ver ejemplos completos en:
 👉 /examples/sample-requests.md
+
+---
 
 ## 🧩 Características principales
 
@@ -92,12 +96,81 @@ Podés ver ejemplos completos en:
 - Integración con APIs
 - Sistema escalable
 
+---
+
 ## 💡 ¿Por qué es interesante?
 
 - Funciona sin APIs pagas
 - Usa IA real (no mock)
 - Automatiza un caso de uso real de negocio
 - Representa un caso práctico de AI Engineering
+
+---
+
+## 🛠️ Cómo ejecutar el proyecto
+
+### 1. Requisitos
+
+- Docker instalado
+- Ollama instalado
+- Node.js (opcional)
+
+### 2. Ejecutar n8n con Docker
+
+```bash
+docker run -it --rm ^
+  --name n8n ^
+  -p 5678:5678 ^
+  -v %USERPROFILE%\.n8n:/home/node/.n8n ^
+  n8nio/n8n
+```
+
+### 3. Abrir el navegador
+
+👉 http://localhost:5678
+
+### 4. Ejecutar modelo LLM con Ollama
+
+Instalar Ollama y correr el modelo:
+
+```bash
+ollama run llama3.2
+```
+
+### 5. Importar workflow en n8n
+
+- Ir a n8n
+- Importar archivo:
+
+```txt
+/n8n/workflow.json
+```
+
+### 6. Probar el sistema
+
+Se puede probar usando Postman o cualquier cliente HTTP:
+
+POST http://localhost:5678/webhook-test/ai-automation-agent
+
+```json
+{
+  "name": "Cliente Demo",
+  "email": "cliente@email.com",
+  "message": "Quiero automatizar respuestas de clientes"
+}
+```
+
+### 7. Resultado esperado
+
+El sistema devuelve:
+
+- Clasificación de intención
+- Prioridad
+- Resumen
+- Acción sugerida
+- Respuesta automática
+
+---
 
 ## 📁 Estructura del proyecto
 
@@ -110,6 +183,8 @@ ai-automation-agent/
 └── README.md
 ```
 
+---
+
 ## 📈 Posibles mejoras
 
 - Implementación de memoria (RAG)
@@ -117,12 +192,22 @@ ai-automation-agent/
 - Dashboard de visualización
 - Migración a base de datos (MongoDB)
 
+---
+
 ## 👨‍💻 Autor
 
 **Alberto Arce**
 AI Engineer | Backend Developer
 
+---
+
 ## 🔗 Conectemos
 
 - LinkedIn: https://linkedin.com/in/cucuarce
 - GitHub: https://github.com/cucuarce
+
+---
+
+## 🚀 Estado del proyecto
+
+Proyecto funcional en desarrollo. Enfocado en evolución hacia sistemas de automatización más complejos con IA.
