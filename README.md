@@ -1,6 +1,8 @@
-# 🤖 AI Automation Agent
+## 🤖 AI Automation Agent
 
-Sistema de automatización con Inteligencia Artificial que procesa consultas, clasifica la intención y ejecuta acciones automáticamente.
+**Proyecto real de AI Engineering usando n8n + LLM local (Ollama), sin dependencias de APIs pagas.**
+
+Sistema de automatización con Inteligencia Artificial que procesa consultas utilizando modelos de inteligencia artificial (LLM), clasifica la intención y ejecuta acciones automáticamente.
 
 ---
 
@@ -16,15 +18,36 @@ Este sistema permite:
 - Generar una respuesta automática
 
 ---
+## ⚡ Demo rápida
 
-## 🧠 Problema que resuelve
+Ejemplo de request:
 
-Muchas empresas procesan consultas de clientes manualmente:
+```json
+{
+  "name": "Cliente Demo",
+  "message": "Quiero automatizar respuestas a clientes"
+}
+```
 
-- Clasifican mensajes
-- Detectan oportunidades comerciales
-- Responden manualmente
-- Registran información en sistemas
+Ejemplo de response:
+
+```json
+{
+  "intent": "solicitud_automatizacion",
+  "priority": "high"
+}
+```
+
+---
+
+## 💼 Caso de uso
+
+Este sistema puede ser utilizado por empresas para:
+
+- Clasificar automáticamente consultas de clientes
+- Detectar oportunidades comerciales
+- Automatizar respuestas iniciales
+- Registrar leads en sistemas internos
 
 Este proyecto automatiza todo ese flujo usando IA.
 
