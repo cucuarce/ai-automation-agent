@@ -1,0 +1,317 @@
+{
+  "name": "ai-automation-agent-project-1",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-automation-agent",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "20696ff1-9bcc-4731-b113-79841f3351eb",
+      "name": "Webhook",
+      "webhookId": "d074952d-1f34-4a83-a02e-eb9a03fa98cd"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2e708fdf-f257-48ae-998b-083826c1075a",
+              "name": "name",
+              "value": "={{$json.body.name}}",
+              "type": "string"
+            },
+            {
+              "id": "b6c22b16-32b7-459c-97eb-b291e5ec1f55",
+              "name": "email",
+              "value": "={{$json.body.email}}",
+              "type": "string"
+            },
+            {
+              "id": "1ab3df54-9f70-4e9c-9032-f4d5f763c428",
+              "name": "message",
+              "value": "={{$json.body.message}}",
+              "type": "string"
+            },
+            {
+              "id": "a8c80396-b1eb-45b2-a3cc-83aaa290636b",
+              "name": "received_at",
+              "value": "={{$now}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "566c24c8-1d77-450a-89fb-a9c08d327afb",
+      "name": "Prepare Input"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:11434/api/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama3.2\",\n  \"stream\": false,\n  \"prompt\": \"Sos un clasificador de intención para un sistema de automatización con IA. Analizá el mensaje del usuario y devolvé SOLO un JSON válido, sin markdown, sin explicación y sin texto extra. Categorías posibles: lead_comercial, soporte_tecnico, consulta_general, solicitud_automatizacion, otro. Formato obligatorio: {\\\"intent\\\":\\\"...\\\",\\\"priority\\\":\\\"low|medium|high\\\",\\\"summary\\\":\\\"...\\\",\\\"suggested_action\\\":\\\"...\\\"}. Mensaje del usuario: {{$json.message}}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "efc089c7-763d-464e-851b-7504414d5588",
+      "name": "Ollama Intent Classifier"
+    },
+    {
+      "parameters": {
+        "jsCode": "const currentItem = $input.first().json;\n\nconst rawResponse = currentItem.response || \"\";\n\nlet parsed;\n\ntry {\n  const cleaned = rawResponse\n    .replace(/```json/g, \"\")\n    .replace(/```/g, \"\")\n    .trim();\n\n  parsed = JSON.parse(cleaned);\n} catch (error) {\n  parsed = {\n    intent: \"otro\",\n    priority: \"medium\",\n    summary: rawResponse || \"No se pudo interpretar la respuesta del modelo.\",\n    suggested_action: \"Revisar manualmente la consulta.\"\n  };\n}\n\nconst inputData = $(\"Prepare Input\").first().json;\n\nreturn [\n  {\n    json: {\n      name: inputData.name,\n      email: inputData.email,\n      message: inputData.message,\n      received_at: inputData.received_at,\n      intent: parsed.intent,\n      priority: parsed.priority,\n      summary: parsed.summary,\n      suggested_action: parsed.suggested_action,\n      automated_response: `Gracias por tu consulta. Detectamos que tu solicitud está relacionada con: ${parsed.intent}. Vamos a revisarla y responderte con una propuesta adecuada.`\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "43423902-4af6-4461-99db-1a46a7827097",
+      "name": "Parse AI Response"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"contact\": {\n    \"name\": \"{{$json.name}}\",\n    \"email\": \"{{$json.email}}\"\n  },\n  \"classification\": {\n    \"intent\": \"{{$json.intent}}\",\n    \"priority\": \"{{$json.priority}}\",\n    \"summary\": \"{{$json.summary}}\",\n    \"suggested_action\": \"{{$json.suggested_action}}\"\n  },\n  \"message\": \"{{$json.automated_response}}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "0a5a8257-decd-4715-a206-66c59b254b03",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1W7y0E6W4URZdxQA0eitlni7Z_ua0wFRPYzcWhmAFdS4",
+          "mode": "list",
+          "cachedResultName": "AI_Automation_Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1W7y0E6W4URZdxQA0eitlni7Z_ua0wFRPYzcWhmAFdS4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1W7y0E6W4URZdxQA0eitlni7Z_ua0wFRPYzcWhmAFdS4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Fecha": "={{ $json.received_at }}",
+            "Nombre": "={{ $json.name }}",
+            "Email": "={{ $json.email }}",
+            "Mensaje": "={{ $json.message }}",
+            "Intent": "={{ $json.intent }}",
+            "Prioridad": "={{ $json.priority }}",
+            "Resumen": "={{ $json.summary }}",
+            "Accion": "={{ $json.suggested_action }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Mensaje",
+              "displayName": "Mensaje",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Intent",
+              "displayName": "Intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Prioridad",
+              "displayName": "Prioridad",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Resumen",
+              "displayName": "Resumen",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Accion",
+              "displayName": "Accion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        816,
+        0
+      ],
+      "id": "ed92a444-1560-4f6f-ab99-7f2eb148eb10",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BP4jCucNF7c0PLTk",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Prepare Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Input": {
+      "main": [
+        [
+          {
+            "node": "Ollama Intent Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Intent Classifier": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Response": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "9bab55bd-c49f-4d1a-9720-f3fa0c8c1e9f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9fab44e27621eb4cad1aa576c7d8a1e525089bb92b535ba98ba27a62c4873339"
+  },
+  "id": "0SVYxEhTJe55H1p0",
+  "tags": []
+}
